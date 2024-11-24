@@ -1,0 +1,37 @@
+
+
+
+file="TS_cleaned"
+
+
+TS_tokens=$(wc -l < TS_cleaned)
+TS_types=$(sort TS_cleaned | uniq | wc -l) 
+
+
+output_file="TS_POS"
+
+python3 - <<EOF
+import nltk
+from pathlib import Path
+
+nltk.download('averaged_perceptron_tagger', quiet=True)
+
+input_file = Path("$file")
+tokens = input_file.read_text().splitlines()
+
+tagged_words = nltk.pos_tag(tokens)
+
+output_file = Path("$output_file")
+with output_file.open("w") as f:
+    for word, tag in tagged_words:
+        f.write(f"{word}\t{tag}\n")
+
+print("POS tagging completed.")
+EOF
+
+uniq -c "$file" | sort
+
+echo "Tokens: $TS_tokens"
+echo "Types: $TS_types"
+
+cut -f2 "TS_POS" | sort | uniq -c | sort -nr

@@ -1,0 +1,31 @@
+
+stopwords=("ooh" "oh" "ah" "ahh" "whoa" "stay" "shake" "na" "made" "do" "look" "la" "uh" "huh" "ohh" "doo" "mm" "mmm" "woo" "ba" "da" "hey" "yeah" "i" "you" "all" "the" "to" "me" "a" "in" "it" "my" "your" "of" "but" "that" "im" "all" "like" "on" "was" "we" "be" "is" "this" "so" "its" "dont" "just" "never" "for" "with" "were" "and" "when" "youre" "if" "what" "at" "are" "id" "ive" "did" "not") 
+
+printf "%s\n" "${stopwords[@]}" > stopwords.txt
+
+cat TS_lyrics | tr 'A-Z' 'a-z' | sed "s/[^a-z0-9']/\n/g" | sed "s/'//g" | sed '/^$/d' | grep -v -w -f stopwords.txt > TS_ngrams
+
+
+tail -n +2 TS_ngrams > TS_words_shift1
+paste TS_ngrams TS_words_shift1 > TS_bigrams
+
+
+echo "Top 5 Bigrams:"
+awk '{print $1, $2}' TS_bigrams | sort | uniq -c | sort -nr | head -n 5
+
+
+tail -n +3 TS_ngrams > TS_words_shift2
+paste TS_ngrams TS_words_shift1 TS_words_shift2 > TS_trigrams
+
+
+echo "Top 5 Trigrams:"
+awk '{print $1, $2, $3}' TS_trigrams | sort | uniq -c | sort -nr | head -n 5
+
+
+tail -n +4 TS_ngrams > TS_words_shift3
+paste TS_ngrams TS_words_shift1 TS_words_shift2 TS_words_shift3 > TS_4grams
+
+
+echo "Top 5 4-grams:"
+awk '{print $1, $2, $3, $4}' TS_4grams | sort | uniq -c | sort -nr | head -n 5
+
